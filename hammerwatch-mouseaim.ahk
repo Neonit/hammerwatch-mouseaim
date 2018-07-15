@@ -32,7 +32,6 @@ ctrl_down :=    "k"
 ctrl_right :=   "l"
 ctrl_stand :=   "n"
 ctrl_strafe :=  "m"
-ctrl_atk1 :=    "LButton"
 
 mvm_binds := []
 mvm_binds[idx_up] := "w"
