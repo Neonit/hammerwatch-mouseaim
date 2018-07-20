@@ -10,9 +10,9 @@
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  ; Ensures a consistent starting directory.
 CoordMode Mouse, Screen
-; SetKeyDelay 2, 1
+SetKeyDelay 25, 25
 
-; constants
+; constants (NEVER CHANGE THESE, unless you know what you're doing)
 idx_up := 1
 idx_left := 2
 idx_down := 3
@@ -25,7 +25,8 @@ screen_center_y := A_ScreenHeight / 2
 state_actions := ["up", "down"]
 
 ; configuration
-crosshair_size := [17, 17]
+crosshair_size := [17, 17] ; [width, height] in pixels; adjust to the current crosshair image
+; you may adjust the keys here, but it's probably easier to bind them ingame like they are set here
 ctrl_up :=      "i"
 ctrl_left :=    "j"
 ctrl_down :=    "k"
@@ -33,24 +34,31 @@ ctrl_right :=   "l"
 ctrl_stand :=   "n"
 ctrl_strafe :=  "m"
 
+; you can set your control keys here, if you don't want to use wasd
 mvm_binds := []
 mvm_binds[idx_up] := "w"
 mvm_binds[idx_left] := "a"
 mvm_binds[idx_down] := "s"
 mvm_binds[idx_right] := "d"
 
-; runtime variables
+; runtime variables (DO NOT CHANGE)
 cur_direction := 0
 crosshair_offset := [Floor(crosshair_size[1] / 2), Floor(crosshair_size[2] / 2)]
 is_running := false
 is_setup := false
 
+; DO NOT CHANGE
 mvm_keys := []
 mvm_keys[idx_up] := ctrl_up
 mvm_keys[idx_left] := ctrl_left
 mvm_keys[idx_down] := ctrl_down
 mvm_keys[idx_right] := ctrl_right
 
+; DO NOT CHANGE
+; this maps the current mouse aim segment to the movement key combination
+; e.g. 1 is for the segment to the straight left, thus both keys are ctrl_left, 2 is for the one
+; above it (up and left) and so on; each segment covers 45°, so there are 360° / 45° = 8 segments,
+; because ingame you can look into 8 different directions
 key_combs := []
 key_combs[1] := [ctrl_left, ctrl_left]
 key_combs[2] := [ctrl_up, ctrl_left]
@@ -61,24 +69,31 @@ key_combs[6] := [ctrl_down, ctrl_right]
 key_combs[7] := [ctrl_down, ctrl_down]
 key_combs[8] := [ctrl_left, ctrl_down]
 
+; this is the control for activating and deactivating the mouseaim; you can change it, if you want
+; the asterisk in front means it also triggers, if any other key is pressed, which is recommended,
+; because the script often holds keys automatically for you (e.g. for strafing)
 *NumpadMult::
     is_running := !is_running
     if (is_running)
 	{
         if (!is_setup)
 		{
-            SetupCrosshair()
+            SetupCrosshair() ; preceed with a semicolon, if you don't want the crosshair (also look
+                ; around line 200 for UpdateCrosshair(), which also must be deactivated)
             is_setup := true
 		}
         SetTimer, mainloop, -1
 	}
 Return
 
+; these hotkeys only work when the mouseaim is active
 #If is_running
-LButton:: Up
-RButton:: Left
-MButton:: Right
-Space:: Down
+*LButton:: Up
+*RButton::
+    SendEvent {LCtrl down}{Left}{LCtrl up}
+Return
+*LShift:: Right
+*Space:: Down
 #if
 
 mainloop:
@@ -183,5 +198,6 @@ UpdateState()
 	if (cur_direction != direction)
 		UpdateDirection(direction)
 	UpdateMovement()
-	UpdateCrosshair(mx, my)
+	UpdateCrosshair(mx, my) ; preceed with semicolon, if you don't want a crosshair (also look
+        ; around line 80, there you must deactivate another line)
 }
