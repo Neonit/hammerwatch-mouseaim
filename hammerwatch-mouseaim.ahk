@@ -5,6 +5,15 @@
 ; Author:         Neonit
 ;
 
+;;;;;;;;;;;;;;;;;;;;
+;; VERY IMPORTANT ;;
+;;;;;;;;;;;;;;;;;;;;
+/*
+    YOU CAN FIND A LIST OF ALL KEY NAMES USED IN THIS SCRIPT AND AVAILABLE TO YOUR PERSONAL ADJUSTMENTS HERE:
+
+    https://autohotkey.com/docs/KeyList.htm
+*/
+
 ; basic script initialization
 #NoEnv  ; Recommended for performance and compatibility with future AutoHotkey releases.
 SendMode Input  ; Recommended for new scripts due to its superior speed and reliability.
@@ -69,6 +78,7 @@ key_combs[6] := [ctrl_down, ctrl_right]
 key_combs[7] := [ctrl_down, ctrl_down]
 key_combs[8] := [ctrl_left, ctrl_down]
 
+; [enabledisablekey]
 ; this is the control for activating and deactivating the mouseaim; you can change it, if you want
 ; the asterisk in front means it also triggers, if any other key is pressed, which is recommended,
 ; because the script often holds keys automatically for you (e.g. for strafing)
@@ -78,20 +88,36 @@ key_combs[8] := [ctrl_left, ctrl_down]
 	{
         if (!is_setup)
 		{
-            SetupCrosshair() ; preceed with a semicolon, if you don't want the crosshair (also look
-                ; around line 200 for UpdateCrosshair(), which also must be deactivated)
+            SetupCrosshair() ; [disablecrosshair] preceed with a semicolon, if you don't want the crosshair
             is_setup := true
 		}
         SetTimer, mainloop, -1
 	}
 Return
 
+/* [attackhotkeys]
+    I noticed that when playing as the ranger, the right mouse button would place multiple bombs at once, at least when *invert autofire* is enabled. In such a case (I don't know, if it happens with other skills as well), you can use the following hotkey setup:
+
+    *RButton::
+        SendEvent {LCtrl down}{Left}{LCtrl up}
+    Return
+
+    Just replace the respective hotkey entry below. Of course you can replace RButton and Left with the keys you need.
+
+    If you want to decide against *invert autofire*, but want one or more attacks to have autofire, try the following script:
+
+    *LButton:: ; trigger, when you press LButton (left mouse button); adjust to your needs
+        Send {LCtrl down}{Up down} ; pretend that you are holding LCtrl (left CTRL) and Up (arrow up); adjust Up to your needs
+        While GetKeyState(LButton, "p") ; this basically waits until LButton is released; you have to replace LButton here to match the key you set in the first line
+            Sleep 10
+        Send {LCtrl up}{Up up} ; pretend that you release LCtrl and Up; adjust Up to match the key you set in the second line
+    Return
+*/
+
 ; these hotkeys only work when the mouseaim is active
 #If is_running
 *LButton:: Up
-*RButton::
-    SendEvent {LCtrl down}{Left}{LCtrl up}
-Return
+*RButton:: Left
 *LShift:: Right
 *Space:: Down
 #if
@@ -198,6 +224,5 @@ UpdateState()
 	if (cur_direction != direction)
 		UpdateDirection(direction)
 	UpdateMovement()
-	UpdateCrosshair(mx, my) ; preceed with semicolon, if you don't want a crosshair (also look
-        ; around line 80, there you must deactivate another line)
+	UpdateCrosshair(mx, my) ; [disablecrosshair] preceed with semicolon, if you don't want a crosshair
 }
